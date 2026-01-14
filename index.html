@@ -146,6 +146,16 @@
     background: white;
     border-radius: 50%;
   }
+  #freeze-zone {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 120px;
+  height: 120px;
+  z-index: 200;
+  background: transparent;
+}
+
 </style>
 </head>
 <body>
@@ -193,9 +203,17 @@
 </div>
 
 <script>
+
+
+
 /* CLOCK */
 let use24h = true;
 let secondsOn = true;
+
+    
+/* frozen clock logic */
+  let frozen = false;
+let frozenTime = null;
 
 const hoursEl = document.getElementById("hours");
 const minutesEl = document.getElementById("minutes");
@@ -203,7 +221,8 @@ const secondsEl = document.getElementById("seconds");
 const mainColon = document.getElementById("main-colon");
 
 function updateClock(){
-  const now = new Date();
+  const now = frozen && frozenTime ? frozenTime : new Date();
+
   let h = now.getHours();
   let m = now.getMinutes();
   let s = now.getSeconds();
@@ -279,7 +298,30 @@ toggle12.addEventListener("click",()=>{
   toggle12.classList.toggle("active");
   updateClock();
 });
+  document.getElementById("freeze-zone").addEventListener("click", () => {
+  const input = prompt("Freeze time (HH:MM:SS)");
+  if (!input || !/^\d\d:\d\d:\d\d$/.test(input)) return;
+
+  const [h, m, s] = input.split(":").map(Number);
+  const custom = new Date();
+  custom.setHours(h, m, s, 0);
+
+  frozen = true;
+  frozenTime = custom;
+
+  secondsEl.classList.remove("pulse");
+  mainColon.classList.remove("pulse");
+
+  updateClock();
+});
+document.getElementById("freeze-zone").addEventListener("dblclick", () => {
+  frozen = false;
+  frozenTime = null;
+  applyAnimations();
+});
+
 </script>
+<div id="freeze-zone"></div>
 
 </body>
 </html>
