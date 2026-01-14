@@ -319,9 +319,11 @@ toggle12.addEventListener("click",()=>{
 });
   document.getElementById("freeze-zone").addEventListener("click", () => {
   const input = prompt("Freeze time (HH:MM:SS)");
-  if (!input || !/^\d\d:\d\d:\d\d$/.test(input)) return;
+if (!input || !/^\d\d[:\s]\d\d[:\s]\d\d$/.test(input)) return;
 
-  const [h, m, s] = input.split(":").map(Number);
+
+ const [h, m, s] = input.split(/[:\s]/).map(Number);
+
   const custom = new Date();
   custom.setHours(h, m, s, 0);
 
