@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Big Time Clock — Final</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Modak&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ghost-bg: rgba(255,255,255,0.18);
+    --ghost-small-bg: rgba(255,255,255,0.12);
+  }
+
+  body {
+    margin: 0;
+    height: 100vh;
+    background: black;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Modak', cursive;
+    overflow: hidden;
+  }
+
+  .clock {
+    font-size: 20.8vw;
+    display: flex;
+    gap: 0.04em;
+    align-items: center;
+    padding: 0 2.5vw;
+    overflow: visible;
+    line-height: 1;
+  }
+
+  #seconds-block { display: inline-flex; }
+
+  .pulse {
+    animation: pulse 1s linear infinite;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 1; transform: scale(1); }
+    60% { opacity: 0; transform: scale(0.85); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  .hide-seconds #seconds-block { display: none; }
+
+  /* GHOST BUTTONS */
+  .ghost {
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    background: var(--ghost-bg);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 120;
+  }
+
+  #ghost-seconds { left: 18px; bottom: 18px; }
+  #ghost-pro { top: 18px; left: 18px; }
+
+  /* ✔ FIXED — COLOR BUTTON IN BOTTOM RIGHT */
+  #ghost-color {
+    position: fixed;     /* ← THE ONLY CHANGE */
+    right: 18px;
+    bottom: 18px;
+    width: 26px;
+    height: 26px;
+    background: var(--ghost-small-bg);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 130;
+  }
+
+  /* Color Menu */
+  #color-menu {
+    position: fixed;
+    right: 18px;
+    bottom: 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    z-index: 140;
+  }
+  #color-menu.active { opacity: 1; pointer-events: auto; }
+
+  .color-dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.42);
+    cursor: pointer;
+  }
+
+  /* Pro menu */
+  #pro-panel {
+    position: fixed;
+    left: 18px;
+    top: 64px;
+    width: 260px;
+    padding: 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(7px);
+    font-family: Helvetica, Arial, sans-serif;
+    color: #fff;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease;
+    z-index: 150;
+  }
+
+  #pro-panel.active { opacity: 1; pointer-events: auto; }
+
+  .pro-row {
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* Apple style toggle */
+  .toggle-circle {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid white;
+    cursor: pointer;
+    position: relative;
+  }
+  .toggle-circle.active::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 10px;
+    height: 10px;
+    background: white;
+    border-radius: 50%;
+  }
+</style>
+</head>
+<body>
+
+<!-- CLOCK -->
+<div class="clock" id="clock">
+  <span id="hours">00</span>
+  <span id="main-colon">:</span>
+  <span id="minutes">00</span>
+  <span id="seconds-block">
+    <span id="sec-colon">:</span>
+    <span id="seconds">00</span>
+  </span>
+</div>
+
+<!-- GHOST BUTTONS -->
+<div id="ghost-pro" class="ghost"></div>
+<div id="ghost-seconds" class="ghost"></div>
+<div id="ghost-color"></div>
+
+<!-- COLOR MENU -->
+<div id="color-menu">
+  <div class="color-dot" data-color="#fff" data-bg="#000" style="background:#fff"></div>
+  <div class="color-dot" data-color="#000" data-bg="#fff" style="background:#000"></div>
+  <div class="color-dot" data-color="#00eaff" data-bg="#00141a" style="background:#00eaff"></div>
+  <div class="color-dot" data-color="#39ff14" data-bg="#061a00" style="background:#39ff14"></div>
+  <div class="color-dot" data-color="#ff0077" data-bg="#1a0010" style="background:#ff0077"></div>
+  <div class="color-dot" data-color="#ff9100" data-bg="#1a0d00" style="background:#ff9100"></div>
+  <div class="color-dot" data-color="#b400ff" data-bg="#15001a" style="background:#b400ff"></div>
+</div>
+
+<!-- PRO MENU -->
+<div id="pro-panel">
+  <h4>Settings</h4>
+
+  <div class="pro-row">
+    <div>12-Hour Format</div>
+    <div id="toggle12" class="toggle-circle"></div>
+  </div>
+
+  <h4>Pro Features</h4>
+  <div class="pro-row"><div>Pro Color Palettes</div><button>Preview</button></div>
+  <div class="pro-row"><div>Glass-Morphism</div><button>Preview</button></div>
+  <div class="pro-row"><div>Buy Me a Coffee</div><a href="https://buymeacoffee.com" target="_blank">Buy</a></div>
+</div>
+
+<script>
+/* CLOCK */
+let use24h = true;
+let secondsOn = true;
+
+const hoursEl = document.getElementById("hours");
+const minutesEl = document.getElementById("minutes");
+const secondsEl = document.getElementById("seconds");
+const mainColon = document.getElementById("main-colon");
+
+function updateClock(){
+  const now = new Date();
+  let h = now.getHours();
+  let m = now.getMinutes();
+  let s = now.getSeconds();
+
+  if (!use24h) h = (h % 12) || 12;
+
+  hoursEl.textContent = String(h).padStart(2,"0");
+  minutesEl.textContent = String(m).padStart(2,"0");
+  secondsEl.textContent = String(s).padStart(2,"0");
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+
+/* SECONDS ANIMATION */
+function applyAnimations(){
+  if (secondsOn){
+    document.getElementById("clock").classList.remove("hide-seconds");
+    mainColon.classList.remove("pulse");
+    secondsEl.classList.add("pulse");
+  } else {
+    document.getElementById("clock").classList.add("hide-seconds");
+    secondsEl.classList.remove("pulse");
+    mainColon.classList.add("pulse");
+  }
+}
+applyAnimations();
+
+/* BUTTONS */
+document.getElementById("ghost-seconds").addEventListener("click",()=>{
+  secondsOn = !secondsOn;
+  applyAnimations();
+});
+
+/* COLOR MENU */
+const ghostColorBtn = document.getElementById("ghost-color");
+const colorMenuEl = document.getElementById("color-menu");
+
+ghostColorBtn.addEventListener("click",()=>{
+  colorMenuEl.classList.add("active");
+  clearTimeout(window.cm);
+  window.cm = setTimeout(()=>colorMenuEl.classList.remove("active"), 5000);
+});
+
+document.querySelectorAll(".color-dot").forEach(dot=>{
+  dot.addEventListener("click",()=>{
+    document.body.style.color = dot.dataset.color;
+    document.body.style.background = dot.dataset.bg;
+    colorMenuEl.classList.remove("active");
+  });
+});
+
+/* PRO MENU */
+const ghostProBtn = document.getElementById("ghost-pro");
+const proPanelEl = document.getElementById("pro-panel");
+
+ghostProBtn.addEventListener("click",()=>{
+  proPanelEl.classList.toggle("active");
+});
+
+/* CLOSE PRO PANEL */
+document.addEventListener("click",(e)=>{
+  if (!proPanelEl.contains(e.target) && !ghostProBtn.contains(e.target)){
+    proPanelEl.classList.remove("active");
+  }
+});
+
+/* 12/24 TOGGLE */
+const toggle12 = document.getElementById("toggle12");
+
+toggle12.addEventListener("click",()=>{
+  use24h = !use24h;
+  toggle12.classList.toggle("active");
+  updateClock();
+});
+</script>
+
+</body>
+</html>
