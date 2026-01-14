@@ -250,6 +250,14 @@ updateClock();
 
 /* SECONDS ANIMATION */
 function applyAnimations(){
+  
+  if (frozen) {
+    // nothing should pulse in freeze mode
+    secondsEl.classList.remove("pulse");
+    mainColon.classList.remove("pulse");
+    return;
+  }
+  
   if (secondsOn){
     document.getElementById("clock").classList.remove("hide-seconds");
     mainColon.classList.remove("pulse");
