@@ -221,7 +221,16 @@ if ("serviceWorker" in navigator) {
 let use24h = true;
 let secondsOn = true;
 
+  localStorage.setItem("secondsOn", secondsOn);
 secondsOn = localStorage.getItem("secondsOn") !== "false";
+
+  const savedColor = localStorage.getItem("clockColor");
+const savedBg = localStorage.getItem("clockBg");
+if (savedColor && savedBg) {
+  document.body.style.color = savedColor;
+  document.body.style.background = savedBg;
+}
+  
 /* turn this on to make screenshots */
 let screenshotMode = false;
     
