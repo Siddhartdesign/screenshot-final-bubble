@@ -220,6 +220,8 @@ if ("serviceWorker" in navigator) {
 /* CLOCK */
 let use24h = true;
 let secondsOn = true;
+
+secondsOn = localStorage.getItem("secondsOn") !== "false";
 /* turn this on to make screenshots */
 let screenshotMode = false;
     
@@ -274,6 +276,7 @@ applyAnimations();
 /* BUTTONS */
 document.getElementById("ghost-seconds").addEventListener("click",()=>{
   secondsOn = !secondsOn;
+  localStorage.setItem("secondsOn", secondsOn);
   applyAnimations();
 });
 
