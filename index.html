@@ -282,6 +282,8 @@ function applyAnimations(){
 }
 applyAnimations();
 
+  if (!use24h) toggle12.classList.add("active");
+
 /* BUTTONS */
 document.getElementById("ghost-seconds").addEventListener("click",()=>{
   secondsOn = !secondsOn;
@@ -303,6 +305,10 @@ document.querySelectorAll(".color-dot").forEach(dot=>{
   dot.addEventListener("click",()=>{
     document.body.style.color = dot.dataset.color;
     document.body.style.background = dot.dataset.bg;
+
+    localStorage.setItem("clockColor", dot.dataset.color);
+    localStorage.setItem("clockBg", dot.dataset.bg);
+    
     colorMenuEl.classList.remove("active");
   });
 });
@@ -327,6 +333,7 @@ const toggle12 = document.getElementById("toggle12");
 
 toggle12.addEventListener("click",()=>{
   use24h = !use24h;
+  localStorage.setItem("use24h", use24h);
   toggle12.classList.toggle("active");
   updateClock();
 });
