@@ -282,7 +282,6 @@ function applyAnimations(){
 }
 applyAnimations();
 
-  if (!use24h) toggle12.classList.add("active");
 
 /* BUTTONS */
 document.getElementById("ghost-seconds").addEventListener("click",()=>{
@@ -330,6 +329,8 @@ document.addEventListener("click",(e)=>{
 
 /* 12/24 TOGGLE */
 const toggle12 = document.getElementById("toggle12");
+  
+  if (!use24h) toggle12.classList.add("active");
 
 toggle12.addEventListener("click",()=>{
   use24h = !use24h;
