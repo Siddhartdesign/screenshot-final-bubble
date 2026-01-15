@@ -329,7 +329,22 @@ document.addEventListener("click",(e)=>{
 
 /* 12/24 TOGGLE */
 const toggle12 = document.getElementById("toggle12");
-  
+  // RESTORE ALL SETTINGS
+use24h    = localStorage.getItem("use24h")    !== "false";
+secondsOn = localStorage.getItem("secondsOn") !== "false";
+
+const savedColor = localStorage.getItem("clockColor");
+const savedBg    = localStorage.getItem("clockBg");
+if (savedColor && savedBg) {
+  document.body.style.color = savedColor;
+  document.body.style.background = savedBg;
+}
+
+updateClock();
+applyAnimations();
+
+if (!use24h) toggle12.classList.add("active");
+
   if (!use24h) toggle12.classList.add("active");
 
 toggle12.addEventListener("click",()=>{
